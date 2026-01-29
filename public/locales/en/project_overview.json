@@ -1,0 +1,10 @@
+{
+  "title": "Project Overview",
+  "type": "Project Type",
+  "size": "Project Size",
+  "location": "Location",
+  "duration": "Project Duration",
+  "clientRequirements": "Client Requirements",
+  "description": "Description",
+  "notSpecified": "Not Specified"
+}

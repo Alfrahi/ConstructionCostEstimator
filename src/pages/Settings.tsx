@@ -1,0 +1,123 @@
+import { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProfileSettings from "@/components/ProfileSettings";
+import ReportOptionsSection from "@/components/ReportOptionsSection";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { Heading } from "@/components/ui/heading";
+import { useTranslation } from "react-i18next";
+import { User, FileText, Bell } from "lucide-react";
+import NotificationsSection from "@/components/NotificationsSection";
+import { useIsMobile } from "@/hooks/useMobile";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+export default function Settings() {
+  const { t } = useTranslation(["settings", "common"]);
+  const [activeTab, setActiveTab] = useState("profile");
+  const isMobile = useIsMobile();
+
+  const tabItems = useMemo(
+    () => [
+      { value: "profile", labelKey: "settings:profile.title", icon: User },
+      {
+        value: "reports",
+        labelKey: "settings:reportOptions.title",
+        icon: FileText,
+      },
+      {
+        value: "notifications",
+        labelKey: "settings:notifications.title",
+        icon: Bell,
+      },
+    ],
+    [],
+  );
+
+  return (
+    <div className="space-y-6">
+      <Breadcrumbs />
+      <Heading level={1}>{t("settings:title")}</Heading>
+
+      <Tabs
+        defaultValue="profile"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
+        {isMobile ? (
+          <Select value={activeTab} onValueChange={setActiveTab}>
+            <SelectTrigger className="w-full text-sm mb-4">
+              <SelectValue placeholder={t("settings:selectCategory")} />
+            </SelectTrigger>
+            <SelectContent>
+              {tabItems.map((item) => (
+                <SelectItem
+                  key={item.value}
+                  value={item.value}
+                  className="text-sm"
+                >
+                  {t(item.labelKey)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <ScrollArea className="w-full whitespace-nowrap pb-2">
+            <TabsList className="w-full justify-start">
+              {tabItems.map((item) => (
+                <TabsTrigger
+                  key={item.value}
+                  value={item.value}
+                  className="flex items-center gap-2 text-sm"
+                >
+                  <item.icon className="w-4 h-4" />
+                  {t(item.labelKey)}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </ScrollArea>
+        )}
+
+        <TabsContent value="profile">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("settings:profile.title")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProfileSettings />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("settings:reportOptions.title")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ReportOptionsSection />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("settings:notifications.title")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <NotificationsSection />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

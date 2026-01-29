@@ -1,0 +1,540 @@
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Plus, Edit2, Trash2, Copy, Trash, X, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionBar } from "@/components/BulkActionBar";
+import { PaginationControls } from "@/components/PaginationControls";
+import { useAuth } from "@/components/AuthProvider";
+import { useCurrencyFormatter } from "@/utils/formatCurrency";
+import { useLibrarySyncManager } from "@/hooks/useLibrarySyncManager";
+import { useSettingsOptions } from "@/hooks/useSettingsOptions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TranslatedSelect } from "@/components/TranslatedSelect";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn, getIconMarginClass } from "@/lib/utils";
+import { handleError } from "@/utils/toast";
+
+const libraryEquipmentSchema = z.object({
+  name: z.string().min(1, "resources:equipment.nameRequired"),
+  type: z.string().optional().nullable(),
+  rental_or_purchase: z
+    .string()
+    .min(1, "resources:equipment.rentalPurchaseRequired"),
+  cost_per_period: z.coerce
+    .number()
+    .min(0, "resources:equipment.costNonNegative"),
+  period_unit: z.string().min(1, "resources:equipment.periodUnitRequired"),
+});
+
+type LibraryEquipmentFormValues = z.infer<typeof libraryEquipmentSchema>;
+
+export default function LibraryEquipmentManager() {
+  const { t } = useTranslation(["resources", "common"]);
+  const { user } = useAuth();
+  const { format } = useCurrencyFormatter();
+  const { options: rentalOptions, isLoading: isLoadingRentalOptions } =
+    useSettingsOptions("equipment_rental_purchase");
+  const { options: periodUnits, isLoading: isLoadingPeriodUnits } =
+    useSettingsOptions("equipment_period_unit");
+
+  const [search, setSearch] = useState("");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
+
+  const { itemsQuery, createItem, updateItem, deleteItem, deleteItems } =
+    useLibrarySyncManager({
+      tableName: "library_equipment",
+      queryKey: ["library_equipment"],
+      userId: user?.id,
+      page: currentPage,
+      pageSize: pageSize,
+      select: "*",
+      order: "name",
+      searchTerm: search,
+      searchColumn: "name",
+    });
+
+  const { data: items = [], count = 0 } = itemsQuery.data || {};
+  const isLoading = itemsQuery.isLoading;
+  const totalPages = Math.ceil(count / pageSize);
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [search, pageSize]);
+
+  const allVisibleIds = useMemo(
+    () => items.map((item: any) => item.id),
+    [items],
+  );
+  const selection = useBulkSelection(allVisibleIds);
+  const [showBulkDelete, setShowBulkDelete] = useState(false);
+
+  const form = useForm<LibraryEquipmentFormValues>({
+    resolver: zodResolver(libraryEquipmentSchema),
+    defaultValues: {
+      name: "",
+      type: "",
+      rental_or_purchase: rentalOptions[0]?.value || "Rental",
+      cost_per_period: 0,
+      period_unit: periodUnits[0]?.value || "Day",
+    },
+  });
+
+  const rentalOrPurchase = form.watch("rental_or_purchase");
+  const isPurchase = rentalOrPurchase === "Purchase";
+
+  useEffect(() => {
+    if (editingItem) {
+      form.reset({
+        name: editingItem.name,
+        type: editingItem.type,
+        rental_or_purchase: editingItem.rental_or_purchase,
+        cost_per_period: editingItem.cost_per_period,
+        period_unit: editingItem.period_unit,
+      });
+    } else {
+      form.reset({
+        name: "",
+        type: "",
+        rental_or_purchase: rentalOptions[0]?.value || "Rental",
+        cost_per_period: 0,
+        period_unit: periodUnits[0]?.value || "Day",
+      });
+    }
+  }, [editingItem, form, rentalOptions, periodUnits]);
+
+  useEffect(() => {
+    if (!form.getValues("rental_or_purchase") && rentalOptions.length > 0) {
+      form.setValue("rental_or_purchase", rentalOptions[0].value);
+    }
+    if (!form.getValues("period_unit") && periodUnits.length > 0) {
+      form.setValue("period_unit", periodUnits[0].value);
+    }
+  }, [rentalOptions, periodUnits, form]);
+
+  const resetForm = useCallback(() => {
+    form.reset({
+      name: "",
+      type: "",
+      rental_or_purchase: rentalOptions[0]?.value || "Rental",
+      cost_per_period: 0,
+      period_unit: periodUnits[0]?.value || "Day",
+    });
+    setEditingItem(null);
+    setIsFormOpen(false);
+  }, [form, rentalOptions, periodUnits]);
+
+  const onSubmit = useCallback(
+    async (values: LibraryEquipmentFormValues) => {
+      try {
+        if (editingItem) {
+          await updateItem.mutateAsync({
+            id: editingItem.id,
+            ...values,
+            user_id: user?.id,
+          });
+        } else {
+          await createItem.mutateAsync({ ...values, user_id: user?.id });
+        }
+        toast.success(t("common:success"));
+        resetForm();
+      } catch (e: any) {
+        handleError(e);
+      }
+    },
+    [editingItem, updateItem, createItem, user?.id, t, resetForm],
+  );
+
+  const handleDuplicate = useCallback(
+    async (item: any) => {
+      try {
+        await createItem.mutateAsync({
+          name: `${item.name} (${t("common:copy")})`,
+          type: item.type,
+          rental_or_purchase: item.rental_or_purchase,
+          cost_per_period: item.cost_per_period,
+          period_unit: item.period_unit,
+          user_id: user?.id,
+        });
+        toast.success(t("common:success"));
+      } catch (e: any) {
+        handleError(e);
+      }
+    },
+    [createItem, user?.id, t],
+  );
+
+  const handleBulkDelete = useCallback(async () => {
+    try {
+      await deleteItems.mutateAsync(Array.from(selection.selectedIds));
+      toast.success(t("common:success"));
+      selection.clear();
+      setShowBulkDelete(false);
+    } catch (e: any) {
+      handleError(e);
+    }
+  }, [deleteItems, selection, t]);
+
+  const headerClass =
+    "text-xs font-semibold text-text-secondary uppercase tracking-wider bg-muted h-10 px-3 py-2";
+
+  return (
+    <div className="space-y-4 text-sm">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold">{t("resources:equipment")}</h2>
+        {!isFormOpen && (
+          <Button
+            onClick={() => setIsFormOpen(true)}
+            size="icon"
+            aria-label={t("common:add")}
+          >
+            <Plus className="w-4 h-4" aria-hidden="true" />
+          </Button>
+        )}
+      </div>
+
+      {isFormOpen && (
+        <div className="border rounded-lg p-4 bg-muted space-y-3">
+          <div className="flex justify-between items-center">
+            <h3 className="font-semibold text-lg">
+              {editingItem ? t("common:edit") : t("common:add")}{" "}
+              {t("resources:equipment.equipment")}
+            </h3>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={resetForm}
+              aria-label={t("common:close")}
+            >
+              <X className="w-4 h-4" aria-hidden="true" />
+            </Button>
+          </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <Label htmlFor="name" className="text-sm font-medium">
+                {t("resources:equipment.name")}
+              </Label>
+              <Input id="name" {...form.register("name")} className="text-sm" />
+              {form.formState.errors.name && (
+                <p className="text-danger text-xs mt-1">
+                  {t(form.formState.errors.name.message!)}
+                </p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="type" className="text-sm font-medium">
+                {t("resources:equipment.type")}
+              </Label>
+              <Input id="type" {...form.register("type")} className="text-sm" />
+            </div>
+            <div>
+              <Label
+                htmlFor="rental_or_purchase"
+                className="text-sm font-medium"
+              >
+                {t("resources:equipment.rentalPurchase")}
+              </Label>
+              <TranslatedSelect
+                value={rentalOrPurchase}
+                onValueChange={(value) =>
+                  form.setValue("rental_or_purchase", value)
+                }
+                options={rentalOptions}
+                isLoading={isLoadingRentalOptions}
+                placeholder={t("resources:equipment.rentalPurchasePlaceholder")}
+                className="text-sm"
+              />
+              {form.formState.errors.rental_or_purchase && (
+                <p className="text-danger text-xs mt-1">
+                  {t(form.formState.errors.rental_or_purchase.message!)}
+                </p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="cost_per_period" className="text-sm font-medium">
+                {isPurchase
+                  ? t("resources:equipment.purchaseCost")
+                  : t("resources:equipment.costPerPeriod")}{" "}
+                (USD)
+              </Label>
+              <Input
+                id="cost_per_period"
+                type="number"
+                step="0.01"
+                {...form.register("cost_per_period")}
+                className="text-sm"
+              />
+              {form.formState.errors.cost_per_period && (
+                <p className="text-danger text-xs mt-1">
+                  {t(form.formState.errors.cost_per_period.message!)}
+                </p>
+              )}
+            </div>
+            {!isPurchase && (
+              <div>
+                <Label htmlFor="period_unit" className="text-sm font-medium">
+                  {t("resources:equipment.periodUnit")}
+                </Label>
+                <TranslatedSelect
+                  value={form.watch("period_unit")}
+                  onValueChange={(value) => form.setValue("period_unit", value)}
+                  options={periodUnits}
+                  isLoading={isLoadingPeriodUnits}
+                  placeholder={t("resources:equipment.periodUnitPlaceholder")}
+                  className="text-sm"
+                />
+                {form.formState.errors.period_unit && (
+                  <p className="text-danger text-xs mt-1">
+                    {t(form.formState.errors.period_unit.message!)}
+                  </p>
+                )}
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetForm}
+                className="text-sm"
+              >
+                {t("common:cancel")}
+              </Button>
+              <Button
+                type="submit"
+                disabled={createItem.isPending || updateItem.isPending}
+                className="text-sm"
+              >
+                {t("common:save")}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="flex justify-between items-center mb-4">
+        <Input
+          placeholder={t("common:searchPlaceholder")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="text-sm w-full"
+        />
+      </div>
+
+      <div className="flex justify-between items-center">
+        <div className="text-sm text-text-secondary">
+          {t("common:item", { count: count })}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-text-secondary">
+            {t("common:rowsPerPage")}:
+          </span>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={(val) => {
+              setPageSize(Number(val));
+              setCurrentPage(0);
+            }}
+          >
+            <SelectTrigger className="w-[70px] h-8 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10" className="text-sm">
+                10
+              </SelectItem>
+              <SelectItem value="20" className="text-sm">
+                20
+              </SelectItem>
+              <SelectItem value="50" className="text-sm">
+                50
+              </SelectItem>
+              <SelectItem value="100" className="text-sm">
+                100
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className={`w-[40px] ${headerClass}`}>
+                <Checkbox
+                  checked={selection.allSelected}
+                  onCheckedChange={selection.toggleAll}
+                  aria-label={t("common:all")}
+                />
+              </TableHead>
+              <TableHead className={`${headerClass} text-start min-w-[150px]`}>
+                {t("resources:equipment.name")}
+              </TableHead>
+              <TableHead className={`${headerClass} text-start min-w-[100px]`}>
+                {t("resources:equipment.type")}
+              </TableHead>
+              <TableHead className={`${headerClass} text-start min-w-[120px]`}>
+                {t("resources:equipment.rentalPurchase")}
+              </TableHead>
+              <TableHead className={`${headerClass} text-start min-w-[120px]`}>
+                {t("resources:equipment.costPerPeriod")} (USD)
+              </TableHead>
+              <TableHead className={`${headerClass} text-start min-w-[100px]`}>
+                {t("resources:equipment.periodUnit")}
+              </TableHead>
+              <TableHead className={`${headerClass} text-end min-w-[100px]`}>
+                {t("common:actions")}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin mx-auto" />
+                </TableCell>
+              </TableRow>
+            ) : items.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-8 text-text-secondary"
+                >
+                  {t("common:noItems")}
+                </TableCell>
+              </TableRow>
+            ) : (
+              items.map((item: any) => (
+                <TableRow key={item.id} className="border-t border-border">
+                  <TableCell className="px-3 py-2 w-[40px]">
+                    <Checkbox
+                      checked={selection.isSelected(item.id)}
+                      onCheckedChange={() => selection.toggle(item.id)}
+                      aria-label={`${t("common:select")} ${item.name}`}
+                    />
+                  </TableCell>
+                  <TableCell className="px-3 py-2 text-start font-medium min-w-[150px] text-text-primary">
+                    {item.name}
+                  </TableCell>
+                  <TableCell className="px-3 py-2 text-start min-w-[100px] text-text-primary">
+                    {item.type || t("common:noDescription")}
+                  </TableCell>
+                  <TableCell className="px-3 py-2 text-start min-w-[120px] text-text-primary">
+                    {rentalOptions.find(
+                      (o) => o.value === item.rental_or_purchase,
+                    )?.label || item.rental_or_purchase}
+                  </TableCell>
+                  <TableCell className="px-3 py-2 text-start min-w-[120px] text-text-primary">
+                    {format(item.cost_per_period, "USD")}
+                  </TableCell>
+                  <TableCell className="px-3 py-2 text-start min-w-[100px] text-text-primary">
+                    {periodUnits.find((u) => u.value === item.period_unit)
+                      ?.label || item.period_unit}
+                  </TableCell>
+                  <TableCell className="px-3 py-2 flex gap-2 justify-end min-w-[100px]">
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => handleDuplicate(item)}
+                      aria-label={`${t("common:duplicate")} ${item.name}`}
+                      className="h-7 w-7"
+                    >
+                      <Copy className="w-3 h-3" aria-hidden="true" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => {
+                        setEditingItem(item);
+                        setIsFormOpen(true);
+                      }}
+                      aria-label={`${t("common:edit")} ${item.name}`}
+                      className="h-7 w-7"
+                    >
+                      <Edit2 className="w-3 h-3" aria-hidden="true" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      onClick={() => setDeleteTarget(item)}
+                      aria-label={`${t("common:delete")} ${item.name}`}
+                      className="h-7 w-7"
+                    >
+                      <Trash2 className="w-3 h-3" aria-hidden="true" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+
+      <BulkActionBar count={selection.count} onClear={selection.clear}>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => setShowBulkDelete(true)}
+          className="flex items-center gap-2 text-sm"
+        >
+          <Trash
+            className={cn("w-4 h-4", getIconMarginClass())}
+            aria-hidden="true"
+          />
+          {t("common:delete")}
+        </Button>
+      </BulkActionBar>
+
+      <DeleteConfirmationDialog
+        open={!!deleteTarget}
+        onOpenChange={() => setDeleteTarget(null)}
+        onConfirm={() =>
+          deleteTarget && deleteItem.mutateAsync({ id: deleteTarget.id })
+        }
+        itemName={deleteTarget?.name}
+        loading={deleteItem.isPending}
+      />
+
+      <DeleteConfirmationDialog
+        open={showBulkDelete}
+        onOpenChange={setShowBulkDelete}
+        onConfirm={handleBulkDelete}
+        itemName={`${selection.count} ${t("common:items")}`}
+        loading={deleteItems.isPending}
+      />
+    </div>
+  );
+}

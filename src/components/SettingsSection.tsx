@@ -1,0 +1,387 @@
+import { useCallback } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Trash2, Edit2, ArrowRight, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { PaginationControls } from "@/components/PaginationControls";
+import { useDropdownSettingsUI } from "@/hooks/useDropdownSettingsManager";
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
+import { GenericOptionForm } from "./admin/dropdowns/GenericOptionForm";
+import { CurrencyOptionForm } from "./admin/dropdowns/CurrencyOptionForm";
+import { RiskProbabilityOptionForm } from "./admin/dropdowns/RiskProbabilityOptionForm";
+
+export default function SettingsSection({
+  category,
+  label,
+  description,
+  isAdmin,
+}: {
+  category: string;
+  label: string;
+  description: string;
+  isAdmin: boolean;
+}) {
+  const { t } = useTranslation(["common", "admin"]);
+
+  const {
+    options,
+    isLoading,
+    search,
+    setSearch,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedOptions,
+    editingItem,
+    setEditingItem,
+    deleteTarget,
+    setDeleteTarget,
+    pendingEdit,
+    setPendingEdit,
+    isCurrency,
+    isRiskProbability,
+    handleAddOption,
+    handleDeleteOption,
+    handleConfirmEdit,
+    getDisplayValue,
+  } = useDropdownSettingsUI(category);
+
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearch(e.target.value);
+      setCurrentPage(0);
+    },
+    [setSearch, setCurrentPage],
+  );
+
+  const clearFilters = useCallback(() => {
+    setSearch("");
+    setCurrentPage(0);
+  }, [setSearch, setCurrentPage]);
+
+  return (
+    <Card className="p-4 mb-6 text-sm">
+      <div className="mb-4 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <div className="font-semibold text-lg">{label}</div>
+          <div className="text-sm text-text-secondary">{description}</div>
+        </div>
+        <div className="flex flex-col gap-2 w-full md:w-auto">
+          <div className="flex items-center w-full">
+            <Input
+              placeholder={t("common:searchPlaceholder")}
+              value={search}
+              onChange={handleSearchChange}
+              className="w-full text-sm"
+              aria-label={t("common:searchPlaceholder")}
+            />
+            {(search || currentPage > 0) && (
+              <Button
+                variant="ghost"
+                onClick={clearFilters}
+                className="px-3 -ml-8 text-sm"
+                aria-label={t("common:clearFilters")}
+              >
+                <X className="w-4 h-4" aria-hidden="true" />
+              </Button>
+            )}
+          </div>
+          {isAdmin && (
+            <div className="w-full">
+              {isCurrency ? (
+                <CurrencyOptionForm
+                  category={category}
+                  editingItem={null}
+                  setEditingItem={setEditingItem}
+                  onAdd={handleAddOption}
+                  setPendingEdit={setPendingEdit}
+                  isLoading={isLoading}
+                  allOptions={options}
+                />
+              ) : isRiskProbability ? (
+                <RiskProbabilityOptionForm
+                  category={category}
+                  editingItem={null}
+                  setEditingItem={setEditingItem}
+                  onAdd={handleAddOption}
+                  setPendingEdit={setPendingEdit}
+                  isLoading={isLoading}
+                  allOptions={options}
+                />
+              ) : (
+                <GenericOptionForm
+                  category={category}
+                  editingItem={null}
+                  setEditingItem={setEditingItem}
+                  onAdd={handleAddOption}
+                  setPendingEdit={setPendingEdit}
+                  isLoading={isLoading}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-card rounded border">
+          <thead>
+            <tr className="bg-muted">
+              <th className="px-3 py-2 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                {t("admin:dropdowns.option")}
+              </th>
+              <th className="px-3 py-2 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                {t("common:translationAr")}
+              </th>
+              {isCurrency && (
+                <th className="px-3 py-2 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                  {t("common:exchangeRateUSD")}
+                </th>
+              )}
+              {isRiskProbability && (
+                <th className="px-3 py-2 text-start text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                  {t("admin:dropdowns.numericValue")}
+                </th>
+              )}
+              {isAdmin && (
+                <th className="px-3 py-2 text-end text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                  {t("common:actions")}
+                </th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr>
+                <td
+                  colSpan={
+                    isAdmin
+                      ? isCurrency || isRiskProbability
+                        ? 4
+                        : 3
+                      : isCurrency || isRiskProbability
+                        ? 3
+                        : 2
+                  }
+                  className="text-center py-4 text-text-secondary text-sm"
+                >
+                  {t("common:loading")}
+                </td>
+              </tr>
+            ) : paginatedOptions.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={
+                    isAdmin
+                      ? isCurrency || isRiskProbability
+                        ? 4
+                        : 3
+                      : isCurrency || isRiskProbability
+                        ? 3
+                        : 2
+                  }
+                  className="text-center py-4 text-text-secondary text-sm"
+                >
+                  {t("admin:dropdowns.noOptionsFound")}
+                </td>
+              </tr>
+            ) : (
+              paginatedOptions.map((o) => (
+                <tr key={o.id} className="border-t border-border">
+                  {editingItem?.id === o.id ? (
+                    <>
+                      <td className="px-3 py-2 text-start text-sm">
+                        {isCurrency ? (
+                          <CurrencyOptionForm
+                            category={category}
+                            editingItem={o}
+                            setEditingItem={setEditingItem}
+                            onAdd={handleAddOption}
+                            setPendingEdit={setPendingEdit}
+                            isLoading={isLoading}
+                            allOptions={options}
+                          />
+                        ) : isRiskProbability ? (
+                          <RiskProbabilityOptionForm
+                            category={category}
+                            editingItem={o}
+                            setEditingItem={setEditingItem}
+                            onAdd={handleAddOption}
+                            setPendingEdit={setPendingEdit}
+                            isLoading={isLoading}
+                            allOptions={options}
+                          />
+                        ) : (
+                          <GenericOptionForm
+                            category={category}
+                            editingItem={o}
+                            setEditingItem={setEditingItem}
+                            onAdd={handleAddOption}
+                            setPendingEdit={setPendingEdit}
+                            isLoading={isLoading}
+                          />
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-start text-sm"></td>
+                      {(isCurrency || isRiskProbability) && (
+                        <td className="px-3 py-2 text-start text-sm"></td>
+                      )}
+                      <td className="px-3 py-2 text-end flex gap-2 justify-end"></td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="px-3 py-2 text-start text-sm text-text-primary">
+                        {getDisplayValue(o)}
+                      </td>
+                      <td className="px-3 py-2 text-start text-sm text-text-secondary">
+                        {o.translations?.ar || ""}
+                      </td>
+                      {isCurrency && (
+                        <td className="px-3 py-2 text-start text-sm text-text-secondary">
+                          {o.rate ? o.rate.toFixed(4) : "-"}
+                        </td>
+                      )}
+                      {isRiskProbability && (
+                        <td className="px-3 py-2 text-start text-sm text-text-secondary">
+                          {o.numeric_value !== undefined
+                            ? o.numeric_value.toFixed(2)
+                            : "-"}
+                        </td>
+                      )}
+                      {isAdmin && (
+                        <td className="px-3 py-2 text-end flex gap-2 justify-end">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setEditingItem(o)}
+                            aria-label={`${t("common:edit")} ${o.value}`}
+                            className="h-7 w-7"
+                          >
+                            <Edit2 className="w-3 h-3" aria-hidden="true" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="h-7 w-7 text-destructive hover:text-destructive hover:bg-red-50"
+                            onClick={() => setDeleteTarget(o)}
+                            aria-label={`${t("common:delete")} ${o.value}`}
+                          >
+                            <Trash2 className="w-3 h-3" aria-hidden="true" />
+                          </Button>
+                        </td>
+                      )}
+                    </>
+                  )}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+
+      <Dialog open={!!pendingEdit} onOpenChange={() => setPendingEdit(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">
+              {t("admin:dropdowns.confirmChange")}
+            </DialogTitle>
+            <p className="text-base text-text-secondary pt-2">
+              {t("admin:dropdowns.confirmChangeMessage")}
+            </p>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="bg-red-50 p-3 rounded border border-red-100">
+                <div className="font-semibold text-red-800 mb-1">
+                  {t("admin:dropdowns.oldValue")}
+                </div>
+                <div>{pendingEdit?.oldValue}</div>
+                {pendingEdit?.oldTranslation && (
+                  <div className="text-text-secondary text-xs mt-1">
+                    {pendingEdit.oldTranslation}
+                  </div>
+                )}
+                {isCurrency && pendingEdit?.rate !== undefined && (
+                  <div className="text-text-secondary text-xs mt-1">
+                    {t("common:exchangeRate")}: {pendingEdit.rate.toFixed(4)}
+                  </div>
+                )}
+                {isRiskProbability &&
+                  pendingEdit?.numericValue !== undefined && (
+                    <div className="text-text-secondary text-xs mt-1">
+                      {t("admin:dropdowns.numericValue")}:{" "}
+                      {pendingEdit.numericValue.toFixed(2)}
+                    </div>
+                  )}
+              </div>
+
+              <div className="flex items-center justify-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <ArrowRight
+                  className="w-4 h-4 text-text-secondary"
+                  aria-hidden="true"
+                />
+              </div>
+
+              <div className="bg-muted p-3 rounded border border-border">
+                <div className="font-semibold text-text-primary mb-1">
+                  {t("admin:dropdowns.newValue")}
+                </div>
+                <div>{pendingEdit?.newValue}</div>
+                {pendingEdit?.newTranslation && (
+                  <div className="text-text-secondary text-xs mt-1">
+                    {pendingEdit.newTranslation}
+                  </div>
+                )}
+                {isCurrency && pendingEdit?.rate !== undefined && (
+                  <div className="text-text-secondary text-xs mt-1">
+                    {t("common:exchangeRate")}: {pendingEdit.rate.toFixed(4)}
+                  </div>
+                )}
+                {isRiskProbability &&
+                  pendingEdit?.numericValue !== undefined && (
+                    <div className="text-text-secondary text-xs mt-1">
+                      {t("admin:dropdowns.numericValue")}:{" "}
+                      {pendingEdit.numericValue.toFixed(2)}
+                    </div>
+                  )}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setPendingEdit(null)}
+              className="text-sm"
+            >
+              {t("common:cancel")}
+            </Button>
+            <Button onClick={handleConfirmEdit} className="text-sm">
+              {t("admin:dropdowns.confirmChange")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <DeleteConfirmationDialog
+        open={!!deleteTarget}
+        onOpenChange={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && handleDeleteOption(deleteTarget.id)}
+        itemName={deleteTarget?.value}
+        loading={isLoading}
+      />
+    </Card>
+  );
+}

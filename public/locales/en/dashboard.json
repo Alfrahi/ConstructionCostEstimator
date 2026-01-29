@@ -1,0 +1,13 @@
+{
+  "title": "Projects",
+  "searchPlaceholder": "Search",
+  "createNew": "Create New Project",
+  "myProjects": "My Projects",
+  "noProjects": "No projects found. Start by creating one!",
+  "sharedWithMe": "Shared With Me",
+  "noSharedProjects": "No shared projects.",
+  "viewProject": "View project {{projectName}}",
+  "viewSharedProject": "View shared project {{projectName}}",
+  "projects": "projects",
+  "sharedBy": "Shared by {{email}}"
+}

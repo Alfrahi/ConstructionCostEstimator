@@ -1,0 +1,10 @@
+{
+  "title": "نظرة عامة على المشروع",
+  "type": "نوع المشروع",
+  "size": "حجم المشروع",
+  "location": "الموقع",
+  "duration": "مدة المشروع",
+  "clientRequirements": "متطلبات العميل",
+  "description": "الوصف",
+  "notSpecified": "غير محدد"
+}

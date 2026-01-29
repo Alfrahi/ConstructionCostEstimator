@@ -1,0 +1,26 @@
+{
+  "title": "المواد",
+  "noItems": "لم يتم إضافة مواد بعد",
+  "columns": {
+    "name": "الاسم",
+    "namePlaceholder": "مثال: خرسانة، فولاذ، طوب",
+    "description": "الوصف",
+    "descriptionPlaceholder": "تفاصيل إضافية حول المادة",
+    "quantity": "الكمية",
+    "quantityPlaceholder": "مثال: 100",
+    "unit": "الوحدة",
+    "unitPlaceholder": "اختر الوحدة",
+    "unitPrice": "السعر",
+    "unitPricePlaceholder": "مثال: 5.99",
+    "estTotalCost": "الإجمالي التقديري",
+    "grandTotal": "الإجمالي الكلي",
+    "group": "المجموعة"
+  },
+  "nameRequired": "الاسم مطلوب",
+  "quantityNonNegative": "يجب أن تكون الكمية غير سالبة",
+  "unitRequired": "الوحدة مطلوبة",
+  "priceNonNegative": "يجب أن يكون السعر غير سالب",
+  "add": "إضافة مادة",
+  "edit": "تعديل مادة",
+  "quantityMin": "يجب أن تكون الكمية 1 على الأقل"
+}

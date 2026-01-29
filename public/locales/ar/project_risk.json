@@ -1,0 +1,23 @@
+{
+  "title": "إدارة المخاطر",
+  "noItems": "لم يتم تحديد مخاطر بعد",
+  "fields": {
+    "description": "الوصف",
+    "probability": "الاحتمالية",
+    "impactAmount": "مبلغ التأثير",
+    "mitigationPlan": "خطة التخفيف",
+    "contingencyAmount": "مبلغ الاحتياطي",
+    "descriptionRequired": "الوصف مطلوب",
+    "probabilityRequired": "الاحتمالية مطلوبة",
+    "impactAmountError": "يجب أن يكون مبلغ التأثير غير سالب",
+    "contingencyAmountError": "يجب أن يكون مبلغ الاحتياطي غير سالب"
+  },
+  "totalContingency": "إجمالي الاحتياطي",
+  "add": "إضافة مخاطرة",
+  "edit": "تعديل مخاطرة",
+  "probabilityOptions": {
+    "low": "منخفض",
+    "medium": "متوسط",
+    "high": "مرتفع"
+  }
+}

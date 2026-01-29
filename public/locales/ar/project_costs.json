@@ -1,0 +1,8 @@
+{
+  "csiDivision": "قسم CSI",
+  "csiCode": "رمز CSI",
+  "csiDivisionPlaceholder": "مثال: 03",
+  "csiCodePlaceholder": "مثال: 03 30 00",
+  "csiDivisionRequired": "قسم CSI مطلوب",
+  "csiCodeRequired": "رمز CSI مطلوب"
+}

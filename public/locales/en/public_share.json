@@ -1,0 +1,9 @@
+{
+  "accessProject": "Access Project",
+  "enterPassword": "Enter the password to view this project.",
+  "passwordPlaceholder": "Project password",
+  "access": "Access",
+  "accessFailed": "Failed to access project. Incorrect password or invalid link.",
+  "errorLoadingProjectData": "Failed to load project data. Please try again later.",
+  "readOnlyView": "Read-Only View"
+}

@@ -1,0 +1,24 @@
+{
+  "title": "Labor",
+  "noItems": "No labor items added yet",
+  "columns": {
+    "workerType": "Worker Type",
+    "workerTypePlaceholder": "e.g., Carpenter, Laborer, Electrician",
+    "numWorkers": "Number of Workers",
+    "numWorkersPlaceholder": "e.g., 5",
+    "dailyRate": "Daily Rate",
+    "dailyRatePlaceholder": "e.g., 100.00",
+    "totalDays": "Total Days",
+    "totalDaysPlaceholder": "e.g., 10",
+    "estTotalCost": "Estimated Total",
+    "grandTotal": "Grand Total",
+    "description": "Description",
+    "group": "Group"
+  },
+  "workerTypeRequired": "Worker type is required",
+  "numWorkersMin": "Number of workers must be at least 1",
+  "dailyRateNonNegative": "Daily rate must be non-negative",
+  "totalDaysMin": "Total days must be at least 1",
+  "add": "Add labor item",
+  "edit": "Edit labor item"
+}

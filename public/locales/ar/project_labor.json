@@ -1,0 +1,24 @@
+{
+  "title": "العمالة",
+  "noItems": "لم يتم إضافة عناصر عمالة بعد",
+  "columns": {
+    "workerType": "نوع العامل",
+    "workerTypePlaceholder": "مثال: نجار، عامل، كهربائي",
+    "numWorkers": "عدد العمال",
+    "numWorkersPlaceholder": "مثال: 5",
+    "dailyRate": "الأجر اليومي",
+    "dailyRatePlaceholder": "مثال: 100.00",
+    "totalDays": "إجمالي الأيام",
+    "totalDaysPlaceholder": "مثال: 10",
+    "estTotalCost": "الإجمالي التقديري",
+    "grandTotal": "الإجمالي الكلي",
+    "description": "الوصف",
+    "group": "المجموعة"
+  },
+  "workerTypeRequired": "نوع العامل مطلوب",
+  "numWorkersMin": "يجب أن يكون عدد العمال 1 على الأقل",
+  "dailyRateNonNegative": "يجب أن يكون الأجر اليومي غير سالب",
+  "totalDaysMin": "يجب أن يكون إجمالي الأيام 1 على الأقل",
+  "add": "إضافة عنصر عمالة",
+  "edit": "تعديل عنصر عمالة"
+}

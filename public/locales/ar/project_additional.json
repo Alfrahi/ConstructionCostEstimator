@@ -1,0 +1,20 @@
+{
+  "title": "تكاليف إضافية",
+  "noItems": "لم يتم إضافة تكاليف إضافية بعد",
+  "columns": {
+    "category": "الفئة",
+    "categoryPlaceholder": "اختر الفئة",
+    "description": "الوصف",
+    "descriptionPlaceholder": "تفاصيل حول هذه التكلفة",
+    "amount": "المبلغ",
+    "amountPlaceholder": "مثال: 1000.00",
+    "grandTotal": "الإجمالي الكلي",
+    "group": "المجموعة"
+  },
+  "categoryRequired": "الفئة مطلوبة",
+  "descriptionRequired": "الوصف مطلوب",
+  "amountError": "يجب أن يكون المبلغ غير سالب",
+  "add": "إضافة تكلفة إضافية",
+  "edit": "تعديل تكلفة إضافية",
+  "amountNonNegative": "يجب أن يكون المبلغ غير سالب"
+}

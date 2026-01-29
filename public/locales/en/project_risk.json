@@ -1,0 +1,23 @@
+{
+  "title": "Risk Management",
+  "noItems": "No risks identified yet",
+  "fields": {
+    "description": "Description",
+    "probability": "Probability",
+    "impactAmount": "Impact Amount",
+    "mitigationPlan": "Mitigation Plan",
+    "contingencyAmount": "Contingency Amount",
+    "descriptionRequired": "Description is required",
+    "probabilityRequired": "Probability is required",
+    "impactAmountError": "Impact amount must be non-negative",
+    "contingencyAmountError": "Contingency amount must be non-negative"
+  },
+  "totalContingency": "Total Contingency",
+  "add": "Add risk",
+  "edit": "Edit risk",
+  "probabilityOptions": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  }
+}

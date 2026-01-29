@@ -1,0 +1,12 @@
+{
+  "super_admin": "مسؤول فائق",
+  "admin": "مسؤول",
+  "user": "مستخدم",
+  "editor": "محرر",
+  "viewer": "مستعرض",
+  "super_admin_display": "مسؤول فائق",
+  "admin_display": "مسؤول",
+  "user_display": "مستخدم",
+  "editor_display": "محرر",
+  "viewer_display": "مستعرض"
+}

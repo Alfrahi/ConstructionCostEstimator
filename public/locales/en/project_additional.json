@@ -1,0 +1,20 @@
+{
+  "title": "Additional Costs",
+  "noItems": "No additional costs added yet",
+  "columns": {
+    "category": "Category",
+    "categoryPlaceholder": "Select category",
+    "description": "Description",
+    "descriptionPlaceholder": "Details about this cost",
+    "amount": "Amount",
+    "amountPlaceholder": "e.g. 1000.00",
+    "grandTotal": "Grand Total",
+    "group": "Group"
+  },
+  "categoryRequired": "Category is required",
+  "descriptionRequired": "Description is required",
+  "amountError": "Amount must be non-negative",
+  "add": "Add additional cost",
+  "edit": "Edit additional cost",
+  "amountNonNegative": "Amount must be non-negative"
+}

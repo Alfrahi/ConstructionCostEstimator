@@ -1,0 +1,13 @@
+{
+  "title": "المشاريع",
+  "searchPlaceholder": "بحث",
+  "createNew": "إنشاء مشروع جديد",
+  "myProjects": "مشاريعي",
+  "noProjects": "لم يتم العثور على مشاريع. ابدأ بإنشاء واحد!",
+  "sharedWithMe": "مشاريع مشتركة معي",
+  "noSharedProjects": "لا توجد مشاريع مشتركة.",
+  "viewProject": "عرض المشروع {{projectName}}",
+  "viewSharedProject": "عرض المشروع المشترك {{projectName}}",
+  "projects": "مشاريع",
+  "sharedBy": "تمت المشاركة بواسطة {{email}}"
+}

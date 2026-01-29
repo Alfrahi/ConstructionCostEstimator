@@ -1,0 +1,8 @@
+{
+  "csiDivision": "CSI Division",
+  "csiCode": "CSI Code",
+  "csiDivisionPlaceholder": "e.g., 03",
+  "csiCodePlaceholder": "e.g., 03 30 00",
+  "csiDivisionRequired": "CSI Division is required",
+  "csiCodeRequired": "CSI Code is required"
+}

@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "moduleDetection": "force"
+  },
+  "include": ["src", "vite-env.d.ts"]
+}

@@ -1,0 +1,17 @@
+{
+  "pageNotFound": "Oops! Page not found",
+  "returnToHome": "Return to Home",
+  "unexpectedToast": "An unexpected error occurred. Please try again.",
+  "unknown": "An unknown error occurred.",
+  "boundaryTitle": "Oops! Something went wrong.",
+  "tryAgain": "Try Again",
+  "goToHomepage": "Go to Homepage",
+  "networkError": "Network error. Please check your internet connection.",
+  "uniqueViolation": "This record already exists. Please use a unique identifier.",
+  "foreignKeyViolation": "This operation cannot be completed because it references a missing record.",
+  "permissionDenied": "You do not have permission to perform this action.",
+  "resourceNotFound": "The requested resource could not be found.",
+  "timeout": "The request timed out. Please try again.",
+  "missingRequiredField": "A required field is missing. Please check your input.",
+  "projectLimitExceeded": "Project limit exceeded. Your {{plan}} plan allows only {{count}} active projects. Upgrade or archive existing projects."
+}

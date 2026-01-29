@@ -1,0 +1,26 @@
+{
+  "title": "Materials",
+  "noItems": "No materials added yet",
+  "columns": {
+    "name": "Name",
+    "namePlaceholder": "e.g. Concrete, Steel, Bricks",
+    "description": "Description",
+    "descriptionPlaceholder": "Additional details about the material",
+    "quantity": "Quantity",
+    "quantityPlaceholder": "e.g. 100",
+    "unit": "Unit",
+    "unitPlaceholder": "Select unit",
+    "unitPrice": "Unit Price",
+    "unitPricePlaceholder": "e.g. 5.99",
+    "estTotalCost": "Estimated Total",
+    "grandTotal": "Grand Total",
+    "group": "Group"
+  },
+  "nameRequired": "Name is required",
+  "quantityNonNegative": "Quantity must be non-negative",
+  "unitRequired": "Unit is required",
+  "priceNonNegative": "Unit price must be non-negative",
+  "add": "Add material",
+  "edit": "Edit material",
+  "quantityMin": "Quantity must be at least 1"
+}

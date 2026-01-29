@@ -1,0 +1,12 @@
+{
+  "super_admin": "Super Admin",
+  "admin": "Admin",
+  "user": "User",
+  "editor": "Editor",
+  "viewer": "Viewer",
+  "super_admin_display": "Super Admin",
+  "admin_display": "Admin",
+  "user_display": "User",
+  "editor_display": "Editor",
+  "viewer_display": "Viewer"
+}

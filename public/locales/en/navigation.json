@@ -1,0 +1,12 @@
+{
+  "dashboard": "Projects",
+  "analytics": "Analytics",
+  "resources": "Resources",
+  "costDatabases": "Cost Databases",
+  "settings": "Settings",
+  "adminPanel": "Admin Panel",
+  "openSidebar": "Open sidebar",
+  "logout": "Logout",
+  "dataImport": "Data Import",
+  "assemblies": "Assemblies"
+}

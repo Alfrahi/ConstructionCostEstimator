@@ -1,0 +1,6 @@
+{
+  "residential": "Residential",
+  "commercial": "Commercial",
+  "industrial": "Industrial",
+  "infrastructure": "Infrastructure"
+}

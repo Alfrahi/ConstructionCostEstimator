@@ -1,0 +1,159 @@
+import React, { Suspense, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ReactECharts from "echarts-for-react";
+import { useCurrencyFormatter } from "@/utils/formatCurrency";
+import { useTranslation } from "react-i18next";
+import { Info, Loader2 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  prepareProjectChartData,
+  getPieChartOptions,
+  getBarChartOptions,
+} from "@/logic/analytics";
+
+const LazyChartContainer = React.lazy(
+  () => import("@/components/ChartContainer"),
+);
+
+export default function AnalyticsTab({
+  materialsTotal,
+  laborTotal,
+  equipmentTotal,
+  additionalTotal,
+  currency,
+}: {
+  materialsTotal: number;
+  laborTotal: number;
+  equipmentTotal: number;
+  additionalTotal: number;
+  currency: string;
+}) {
+  const { t } = useTranslation(["project_detail", "project_tabs", "common"]);
+  const { format } = useCurrencyFormatter();
+
+  const { chartData, totalCost } = useMemo(
+    () =>
+      prepareProjectChartData(
+        { materialsTotal, laborTotal, equipmentTotal, additionalTotal },
+        t,
+      ),
+    [materialsTotal, laborTotal, equipmentTotal, additionalTotal, t],
+  );
+
+  const pieChartOptions = useMemo(
+    () => getPieChartOptions(chartData, currency, format),
+    [chartData, currency, format],
+  );
+
+  const barChartOptions = useMemo(
+    () => getBarChartOptions(chartData, currency, format, t),
+    [chartData, currency, format, t],
+  );
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            {t("project_detail:analytics.costBreakdown")}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className="w-4 h-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent className="text-xs">
+                  <p>{t("project_detail:analytics.chartTooltip")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">
+                {t("project_tabs:materials")}
+              </h3>
+              <p className="text-2xl">{format(materialsTotal, currency)}</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">
+                {t("project_tabs:labor")}
+              </h3>
+              <p className="text-2xl">{format(laborTotal, currency)}</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">
+                {t("project_tabs:equipment")}
+              </h3>
+              <p className="text-2xl">{format(equipmentTotal, currency)}</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">
+                {t("project_tabs:additional")}
+              </h3>
+              <p className="text-2xl">{format(additionalTotal, currency)}</p>
+            </div>
+          </div>
+          <div className="mt-6 pt-4 border-t">
+            <h3 className="text-lg font-semibold mb-2">{t("common:total")}</h3>
+            <p className="text-3xl font-bold">{format(totalCost, currency)}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">
+            {t("project_detail:analytics.costDistribution")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Suspense
+            fallback={
+              <div className="h-[320px] sm:h-[360px] lg:h-[400px] flex items-center justify-center">
+                <Loader2 className="w-6 h-6 animate-spin" />
+              </div>
+            }
+          >
+            <LazyChartContainer>
+              <ReactECharts
+                option={pieChartOptions}
+                style={{ height: "100%", width: "100%" }}
+              />
+            </LazyChartContainer>
+          </Suspense>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">
+            {t("project_detail:analytics.totalCost")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Suspense
+            fallback={
+              <div className="h-[320px] sm:h-[360px] lg:h-[400px] flex items-center justify-center">
+                <Loader2 className="w-6 h-6 animate-spin" />
+              </div>
+            }
+          >
+            <LazyChartContainer>
+              <ReactECharts
+                option={barChartOptions}
+                style={{ height: "100%", width: "100%" }}
+              />
+            </LazyChartContainer>
+          </Suspense>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
